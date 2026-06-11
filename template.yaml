@@ -1,0 +1,267 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: validation-4 — Serverless To-Do API with React frontend
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        TASKS_TABLE: !Ref TasksTable
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+      AllowOrigin: "'*'"
+
+Parameters:
+  StageName:
+    Type: String
+    Default: prod
+    Description: API Gateway stage name
+
+Resources:
+
+  # ─── DynamoDB Table ───────────────────────────────────────────────────────────
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'validation-4-tasks-${StageName}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      Tags:
+        - Key: Project
+          Value: validation-4
+        - Key: Stage
+          Value: !Ref StageName
+
+  # ─── IAM Role for Lambda functions ───────────────────────────────────────────
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'validation-4-lambda-role-${StageName}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBTasksAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                Resource: !GetAtt TasksTable.Arn
+
+  # ─── Lambda Functions ─────────────────────────────────────────────────────────
+  ListTasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'validation-4-listTasks-${StageName}'
+      CodeUri: backend/
+      Handler: src/handlers/listTasks.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Description: GET /tareas — returns all tasks from DynamoDB
+      Events:
+        ListTasks:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TasksApi
+            Path: /tareas
+            Method: GET
+
+  CreateTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'validation-4-createTask-${StageName}'
+      CodeUri: backend/
+      Handler: src/handlers/createTask.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Description: POST /tareas — creates a new task in DynamoDB
+      Events:
+        CreateTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TasksApi
+            Path: /tareas
+            Method: POST
+
+  CompleteTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'validation-4-completeTask-${StageName}'
+      CodeUri: backend/
+      Handler: src/handlers/completeTask.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Description: PUT /tareas/{id}/completar — marks task as complete
+      Events:
+        CompleteTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TasksApi
+            Path: /tareas/{id}/completar
+            Method: PUT
+
+  DeleteTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'validation-4-deleteTask-${StageName}'
+      CodeUri: backend/
+      Handler: src/handlers/deleteTask.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Description: DELETE /tareas/{id} — removes task from DynamoDB
+      Events:
+        DeleteTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TasksApi
+            Path: /tareas/{id}
+            Method: DELETE
+
+  # ─── API Gateway REST API ─────────────────────────────────────────────────────
+  TasksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'validation-4-api-${StageName}'
+      StageName: !Ref StageName
+      Description: To-Do REST API for validation-4 demo
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        AllowOrigin: "'*'"
+      Tags:
+        Project: validation-4
+        Stage: !Ref StageName
+
+  # ─── S3 Bucket for Frontend ───────────────────────────────────────────────────
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'validation-4-frontend-${StageName}-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Project
+          Value: validation-4
+        - Key: Stage
+          Value: !Ref StageName
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontOAC
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  # ─── CloudFront Origin Access Control ────────────────────────────────────────
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub 'validation-4-oac-${StageName}'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # ─── CloudFront Distribution ──────────────────────────────────────────────────
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: !Sub 'validation-4 frontend distribution (${StageName})'
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: S3FrontendOrigin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+        DefaultCacheBehavior:
+          TargetOriginId: S3FrontendOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+      Tags:
+        - Key: Project
+          Value: validation-4
+        - Key: Stage
+          Value: !Ref StageName
+
+Outputs:
+  ApiBaseUrl:
+    Description: API Gateway base URL
+    Value: !Sub 'https://${TasksApi}.execute-api.${AWS::Region}.amazonaws.com/${StageName}'
+    Export:
+      Name: !Sub 'validation-4-ApiBaseUrl-${StageName}'
+
+  TasksTableName:
+    Description: DynamoDB table name
+    Value: !Ref TasksTable
+    Export:
+      Name: !Sub 'validation-4-TasksTable-${StageName}'
+
+  FrontendBucketName:
+    Description: S3 bucket name for frontend assets
+    Value: !Ref FrontendBucket
+    Export:
+      Name: !Sub 'validation-4-FrontendBucket-${StageName}'
+
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub 'validation-4-CloudFrontId-${StageName}'
+
+  CloudFrontDomainName:
+    Description: CloudFront distribution domain name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub 'validation-4-CloudFrontDomain-${StageName}'

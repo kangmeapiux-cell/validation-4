@@ -1,0 +1,244 @@
+# API_CONTRACT.md
+
+## Base URL
+
+All endpoints are served under the API Gateway base URL. CORS is enabled for all origins (`*`).
+
+---
+
+## Endpoints
+
+### 1. POST /tareas — Create Task
+
+| Property | Value |
+|---|---|
+| Method | POST |
+| Path | /tareas |
+| Auth Required | No |
+
+**Request Body:**
+
+| Field | Type | Required |
+|---|---|---|
+| titulo | string | required, non-empty |
+
+**Responses:**
+
+| Status Code | Description |
+|---|---|
+| 201 | Task created successfully |
+| 400 | Missing or empty `titulo` |
+
+**Response 201 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data.id | string (UUID v4) |
+| data.titulo | string |
+| data.completada | boolean |
+| data.createdAt | string (ISO 8601) |
+| error | null |
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "titulo": "Nueva tarea",
+    "completada": false,
+    "createdAt": "2024-01-15T10:30:00.000Z"
+  },
+  "error": null
+}
+```
+
+**Response 400 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data | null |
+| error | string |
+
+```json
+{ "success": false, "data": null, "error": "titulo is required" }
+```
+
+---
+
+### 2. GET /tareas — List All Tasks
+
+| Property | Value |
+|---|---|
+| Method | GET |
+| Path | /tareas |
+| Auth Required | No |
+
+**Request Body:** none
+
+**Responses:**
+
+| Status Code | Description |
+|---|---|
+| 200 | List of all tasks |
+
+**Response 200 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data | array of Task objects |
+| data[].id | string (UUID v4) |
+| data[].titulo | string |
+| data[].completada | boolean |
+| data[].createdAt | string (ISO 8601) |
+| error | null |
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "titulo": "Nueva tarea",
+      "completada": false,
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "error": null
+}
+```
+
+---
+
+### 3. PUT /tareas/{id}/completar — Mark Task as Complete
+
+| Property | Value |
+|---|---|
+| Method | PUT |
+| Path | /tareas/{id}/completar |
+| Auth Required | No |
+
+**Path Parameters:**
+
+| Parameter | Type | Required |
+|---|---|---|
+| id | string (UUID) | required |
+
+**Request Body:** none
+
+**Responses:**
+
+| Status Code | Description |
+|---|---|
+| 200 | Task marked as complete |
+| 404 | Task not found |
+
+**Response 200 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data.id | string (UUID v4) |
+| data.titulo | string |
+| data.completada | boolean |
+| data.createdAt | string (ISO 8601) |
+| error | null |
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "titulo": "Nueva tarea",
+    "completada": true,
+    "createdAt": "2024-01-15T10:30:00.000Z"
+  },
+  "error": null
+}
+```
+
+**Response 404 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data | null |
+| error | string |
+
+```json
+{ "success": false, "data": null, "error": "Task not found" }
+```
+
+---
+
+### 4. DELETE /tareas/{id} — Delete Task
+
+| Property | Value |
+|---|---|
+| Method | DELETE |
+| Path | /tareas/{id} |
+| Auth Required | No |
+
+**Path Parameters:**
+
+| Parameter | Type | Required |
+|---|---|---|
+| id | string (UUID) | required |
+
+**Request Body:** none
+
+**Responses:**
+
+| Status Code | Description |
+|---|---|
+| 200 | Task deleted successfully |
+| 404 | Task not found |
+
+**Response 200 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data | null |
+| error | null |
+
+```json
+{ "success": true, "data": null, "error": null }
+```
+
+**Response 404 Body:**
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data | null |
+| error | string |
+
+```json
+{ "success": false, "data": null, "error": "Task not found" }
+```
+
+---
+
+## Shared Response Shape
+
+All responses conform to the `ApiResponse` envelope:
+
+| Field | Type |
+|---|---|
+| success | boolean |
+| data | Task \| Task[] \| null |
+| error | string \| null |
+
+---
+
+## Task Object Shape
+
+| Field | Type | Notes |
+|---|---|---|
+| id | string | UUID v4 |
+| titulo | string | Non-empty |
+| completada | boolean | `false` on creation |
+| createdAt | string | ISO 8601 timestamp |

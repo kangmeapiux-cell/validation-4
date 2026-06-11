@@ -1,0 +1,14 @@
+{
+  "name": "validation-4-backend",
+  "version": "1.0.0",
+  "description": "Backend Lambda functions for validation-4 To-Do API",
+  "main": "src/handlers/createTask.js",
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "uuid": "9.0.0"
+  }
+}

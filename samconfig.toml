@@ -1,0 +1,26 @@
+version = 0.1
+
+[default]
+[default.global.parameters]
+stack_name = "validation-4"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy.parameters]
+stack_name = "validation-4"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket"
+s3_prefix = "validation-4"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
+confirm_changeset = false
+fail_on_empty_changeset = false
+tags = "Project=validation-4"
+
+[default.local_start_api.parameters]
+port = 3000
+env_vars = "env.json"
+
+[default.validate.parameters]
+lint = true

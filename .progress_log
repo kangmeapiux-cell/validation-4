@@ -1,0 +1,157 @@
+{
+  "project_id": "1dfd929f-88ba-4e71-b01d-dda659b8b549",
+  "project_name": "validation-4",
+  "goal": "Implementar el proyecto: validation-4\n\nVisión: Este proyecto busca crear una demo funcional mínima de una API de lista de tareas (To-Do) desplegada en AWS con arquitectura serverless, con el objetivo de validar el flujo end-to-end antes de un desarrollo mayor. La solución consta de un backend con La",
+  "last_updated": "2026-06-11T17:17:25.614220Z",
+  "total_items": 6,
+  "completed_count": 6,
+  "status": "completed",
+  "current_item_index": 6,
+  "spec_file": "SPEC.md",
+  "plan_file": "DEVELOPMENT_PLAN.md",
+  "contract_manifest_available": false,
+  "all_files_created": [
+    "backend/package.json",
+    "backend/src/lib/dynamoClient.js",
+    "backend/src/lib/response.js",
+    "backend/src/lib/constants.js",
+    "backend/src/handlers/createTask.js",
+    "backend/src/handlers/listTasks.js",
+    "backend/src/handlers/completeTask.js",
+    "backend/src/handlers/deleteTask.js",
+    "frontend/index.html",
+    "frontend/package.json",
+    "frontend/src/App.jsx",
+    "frontend/src/api/tasksApi.js",
+    "frontend/src/components/ErrorBanner.jsx",
+    "frontend/src/components/TaskForm.jsx",
+    "frontend/src/components/TaskItem.jsx",
+    "frontend/src/components/TaskList.jsx",
+    "frontend/src/hooks/useTasks.js",
+    "frontend/src/main.jsx",
+    "frontend/src/styles/App.css",
+    "frontend/vite.config.js",
+    "template.yaml",
+    ".env.example",
+    ".gitignore",
+    "README.md",
+    "docker-compose.yml",
+    "run.sh",
+    "samconfig.toml",
+    "scripts/deploy-frontend.sh",
+    "scripts/seed-data.js",
+    "Dockerfile"
+  ],
+  "items": [
+    {
+      "item_number": 1,
+      "title": "Foundation — Backend shared lib, constants, DynamoDB client, response builder",
+      "wave": 1,
+      "files_created": [
+        "backend/package.json",
+        "backend/src/lib/dynamoClient.js",
+        "backend/src/lib/response.js",
+        "backend/src/lib/constants.js"
+      ],
+      "completed_at": "2026-06-11T17:13:13.855365Z"
+    },
+    {
+      "item_number": 2,
+      "title": "Backend — Lambda handlers: createTask, listTasks, completeTask, deleteTask",
+      "wave": 2,
+      "files_created": [
+        "backend/src/handlers/createTask.js",
+        "backend/src/handlers/listTasks.js",
+        "backend/src/handlers/completeTask.js",
+        "backend/src/handlers/deleteTask.js",
+        "frontend/index.html",
+        "frontend/package.json",
+        "frontend/src/App.jsx",
+        "frontend/src/api/tasksApi.js",
+        "frontend/src/components/ErrorBanner.jsx",
+        "frontend/src/components/TaskForm.jsx",
+        "frontend/src/components/TaskItem.jsx",
+        "frontend/src/components/TaskList.jsx",
+        "frontend/src/hooks/useTasks.js",
+        "frontend/src/main.jsx",
+        "frontend/src/styles/App.css",
+        "frontend/vite.config.js"
+      ],
+      "completed_at": "2026-06-11T17:14:53.595755Z"
+    },
+    {
+      "item_number": 3,
+      "title": "Frontend — React SPA (tasksApi, useTasks hook, components, styles) (1/2)",
+      "wave": 2,
+      "files_created": [
+        "frontend/package.json",
+        "frontend/vite.config.js",
+        "frontend/index.html",
+        "frontend/src/main.jsx",
+        "frontend/src/App.jsx",
+        "frontend/src/api/tasksApi.js",
+        "frontend/src/hooks/useTasks.js",
+        "frontend/src/components/TaskForm.jsx",
+        "frontend/src/components/TaskList.jsx",
+        "frontend/src/components/TaskItem.jsx",
+        "frontend/src/components/ErrorBanner.jsx",
+        "frontend/src/styles/App.css",
+        "backend/src/handlers/completeTask.js",
+        "backend/src/handlers/createTask.js",
+        "backend/src/handlers/deleteTask.js",
+        "backend/src/handlers/listTasks.js"
+      ],
+      "completed_at": "2026-06-11T17:14:53.595755Z"
+    },
+    {
+      "item_number": 4,
+      "title": "Frontend — React SPA (tasksApi, useTasks hook, components, styles) (2/2)",
+      "wave": 2,
+      "files_created": [
+        "backend/src/handlers/completeTask.js",
+        "backend/src/handlers/createTask.js",
+        "backend/src/handlers/deleteTask.js",
+        "backend/src/handlers/listTasks.js",
+        "frontend/index.html",
+        "frontend/package.json",
+        "frontend/src/App.jsx",
+        "frontend/src/api/tasksApi.js",
+        "frontend/src/components/ErrorBanner.jsx",
+        "frontend/src/components/TaskForm.jsx",
+        "frontend/src/components/TaskItem.jsx",
+        "frontend/src/components/TaskList.jsx",
+        "frontend/src/hooks/useTasks.js",
+        "frontend/src/main.jsx",
+        "frontend/src/styles/App.css",
+        "frontend/vite.config.js"
+      ],
+      "completed_at": "2026-06-11T17:14:53.595755Z"
+    },
+    {
+      "item_number": 5,
+      "title": "Infrastructure & Deployment — SAM template, samconfig, seed script, deploy scripts, README",
+      "wave": 3,
+      "files_created": [
+        "template.yaml",
+        ".env.example",
+        ".gitignore",
+        "README.md",
+        "docker-compose.yml",
+        "run.sh",
+        "samconfig.toml",
+        "scripts/deploy-frontend.sh",
+        "scripts/seed-data.js"
+      ],
+      "completed_at": "2026-06-11T17:17:15.886726Z"
+    },
+    {
+      "item_number": 6,
+      "title": "Recovery Attempt 1/2: Fix Missing/Defective Files",
+      "wave": 1,
+      "files_created": [
+        "Dockerfile"
+      ],
+      "completed_at": "2026-06-11T17:17:25.614220Z"
+    }
+  ]
+}
