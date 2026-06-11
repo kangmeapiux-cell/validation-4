@@ -26,7 +26,7 @@ version: '3.8'
 services:
   dynamodb-local:
     image: amazon/dynamodb-local:latest
-    container_name: validation-4-dynamodb-local
+
     ports:
       - '8000:8000'
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-inMemory']
@@ -39,7 +39,7 @@ services:
 
   dynamodb-admin:
     image: aaronshaf/dynamodb-admin:latest
-    container_name: validation-4-dynamodb-admin
+
     ports:
       - '8001:8001'
     environment:
